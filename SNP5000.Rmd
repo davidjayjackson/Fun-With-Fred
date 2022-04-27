@@ -1,0 +1,47 @@
+---
+title: "Fun With Fred"
+author: "David Jackson"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(fredr)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(scales)
+source("./api_kay.txt")
+```
+
+## R Markdown
+
+```{r}
+rm(list=ls())
+car_production <-fredr_series_search_text("car production")
+```
+
+```{r}
+seasonally_adjusted <-fredr_series_observations(series_id = "DAUPSA") 
+no_ajustment <-fredr_series_observations(series_id = "DAUPNSA") 
+car_combined <- rbind(seasonally_adjusted,no_ajustment)
+```
+```{r}
+ggplot(car_combined) + geom_line(aes(x=date,y=value,col=series_id)) +
+  labs(title = "Domestic Car Production",x="Month of Report",
+       y="x1,000 Units")
+```
+
+#### 	Inflation, consumer prices for the United States
+
+```{r}
+us_inflation <-fredr_series_search_text("inflation")
+inflation_comsumer_price <-fredr_series_observations(series_id = "FPCPITOTLZGUSA")
+```
+```{r}
+ggplot(inflation_comsumer_price) +
+  geom_line(aes(x=date,y=value)) +
+  labs(title ="US Inflation Rate by Year",y="Inflation Rate (%)")
+```
+

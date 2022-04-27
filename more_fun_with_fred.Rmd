@@ -1,0 +1,86 @@
+---
+title: "S&P500"
+author: "David Jackson"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(fredr)
+library(scales)
+source("./api_kay.txt")
+```
+
+## R Markdown
+
+```{r}
+rm(list=ls())
+SNP500 <-fredr_series_search_text("S&P",order_by ="popularity")
+SNP_data <-fredr_series_observations(series_id = "SP500") 
+
+```
+
+### S&P 500 Daily Close Volume
+
+```{r}
+head(SNP_data) 
+```
+```{r}
+ggplot(SNP_data) + geom_line(aes(x=date,y=value))
+```
+
+### Pull and Join Multiple Data Series
+
+```{r}
+unemployment_data<-fredr_series_search_text("unemployment rate",order_by ="popularity")
+unemployment_rates<-fredr_series_observations(series_id = "UNRATE") 
+```
+```{r}
+ggplot(unemployment_rates) +
+  geom_line(aes(x=date,y=value))
+```
+
+##
+
+```{r}
+unemployment_intial_claims<-fredr_series_observations(series_id = "ICSA") 
+ggplot(unemployment_intial_claims) +
+    geom_col(aes(x=date,y=value)) +
+  scale_y_continuous(labels=comma)
+```
+
+```{r}
+unemployment_intial_claims %>% filter(date >="2000-01-01") %>%
+ggplot() +
+    geom_col(aes(x=date,y=value)) +
+  scale_y_continuous(labels=comma)
+```
+
+```{r}
+unemployment_intial_claims %>% filter(date >="2010-01-01") %>%
+ggplot() +
+    geom_col(aes(x=date,y=value)) +
+  scale_y_continuous(labels=comma)
+```
+
+#### Unemployment Level
+
+```{r}
+unemployment_intial_claims<-fredr_series_observations(series_id = "UNEMPLOY") 
+ggplot(unemployment_intial_claims) +
+    geom_line(aes(x=date,y=value)) +
+  scale_y_continuous(labels=comma) +
+  labs(title="Unemployement Level",y="Thousands of Persons")
+```
+
+#### Unemployment rates
+
+```{r}
+unemployment_intial_claims<-fredr_series_observations(series_id = "M0892AUSM156SNBR") 
+unemployment_rates$Rate <- unemployment_rates$value/100
+ggplot(unemployment_rates) +
+    geom_line(aes(x=date,y=Rate)) +
+  scale_y_continuous(labels=percent) 
+```
